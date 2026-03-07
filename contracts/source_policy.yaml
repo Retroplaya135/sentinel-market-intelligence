@@ -1,0 +1,253 @@
+# Source Policy Contract — Sentinel Crypto Intelligence Platform
+# Machine-readable source classification matrix with enforcement rules.
+# Version: 1.0.0 | Last updated: 2026-02-21
+
+version: "1.0.0"
+contract_type: source_policy
+
+policy_modes:
+  allow:
+    description: "Official APIs/public data with clear commercial terms"
+    default_enabled: true
+    requires_legal_review: false
+  conditional:
+    description: "Requires legal review, kill-switch, retention controls, disabled by default"
+    default_enabled: false
+    requires_legal_review: true
+    requires_commercial_agreement_verified: true
+  blocked:
+    description: "Prohibited — hard code guard, cannot be enabled without legal exception"
+    default_enabled: false
+    requires_legal_review: true
+    requires_exception_approval: true
+    exception_mechanism: "consent_scoped_override"
+    exception_requires:
+      - legal_approval: true
+      - expiry_date: true
+      - two_person_review: true
+
+sources:
+  onchain_evm:
+    id: "onchain_evm"
+    name: "On-Chain EVM (Ethereum, L2s)"
+    policy_mode: "allow"
+    phase: "core"
+    model_usage:
+      inference: true
+      training: true
+      calibration: true
+    retention:
+      raw_data: "unlimited"
+      derived_data: "unlimited"
+    notes: "Public blockchain data, no access restrictions"
+
+  onchain_solana:
+    id: "onchain_solana"
+    name: "On-Chain Solana"
+    policy_mode: "allow"
+    phase: "core"
+    model_usage:
+      inference: true
+      training: true
+      calibration: true
+    retention:
+      raw_data: "unlimited"
+      derived_data: "unlimited"
+    notes: "Public blockchain data, no access restrictions"
+
+  exchange_market_data:
+    id: "exchange_market_data"
+    name: "Exchange/DEX Market Data (trades, orderflow, funding, liquidation)"
+    policy_mode: "allow"
+    phase: "core"
+    model_usage:
+      inference: true
+      training: true
+      calibration: true
+    retention:
+      raw_data: "per_license_terms"
+      derived_data: "unlimited"
+    notes: "Where licensed; check per-exchange redistribution terms"
+
+  licensed_news_rss:
+    id: "licensed_news_rss"
+    name: "Licensed News/RSS"
+    policy_mode: "allow"
+    phase: "core"
+    model_usage:
+      inference: true
+      training: "per_license_terms"
+      calibration: true
+    retention:
+      raw_data: "per_license_terms"
+      derived_data: "unlimited"
+    notes: "Attribution required; source trust scoring applied"
+
+  first_party:
+    id: "first_party"
+    name: "First-Party User Data (watchlists, feedback, alert interactions)"
+    policy_mode: "allow"
+    phase: "core"
+    model_usage:
+      inference: true
+      training: true
+      calibration: true
+    retention:
+      raw_data: "per_user_consent"
+      derived_data: "per_user_consent"
+    notes: "User-owned data with explicit consent"
+
+  x_twitter:
+    id: "x_twitter"
+    name: "X (Twitter)"
+    policy_mode: "conditional"
+    phase: "deferred"
+    default_enabled: false
+    activation_requirements:
+      - commercial_agreement_verified: true
+      - legal_review_complete: true
+      - pmf_gate_passed: true
+    model_usage:
+      inference: true
+      training: false
+      calibration: "on_allowed_features_only"
+    retention:
+      raw_content: "24h_sync_delete"
+      ids_metadata: "per_agreement"
+      derived_aggregates: "unlimited"
+    redistribution:
+      mode: "id_only_share"
+      hydration_rules: "client_side_only"
+      export_restrictions: true
+    cost_controls:
+      budget_calculator: true
+      runtime_burn_control: true
+      query_budget_per_tenant: true
+    notes: "Volatile policy/cost; do not train foundation models on X content"
+
+  reddit:
+    id: "reddit"
+    name: "Reddit"
+    policy_mode: "conditional"
+    phase: "phase_2"
+    default_enabled: false
+    activation_requirements:
+      - commercial_agreement_verified: true
+      - official_api_only: true
+      - scoped_coverage: true
+    model_usage:
+      inference: true
+      training: false
+      calibration: "on_allowed_features_only"
+    retention:
+      raw_content: "per_agreement"
+      derived_data: "unlimited"
+    deletion_obligations:
+      delete_on_request: true
+      sync_frequency: "daily"
+    cost_controls:
+      strict_caching: true
+      narrow_scope: true
+    notes: "Practical only with official API + scoped coverage + strict caching"
+
+  youtube:
+    id: "youtube"
+    name: "YouTube (Transcripts/Metadata)"
+    policy_mode: "conditional"
+    phase: "phase_2"
+    default_enabled: false
+    activation_requirements:
+      - curated_channels_only: true
+      - quota_controls: true
+    model_usage:
+      inference: true
+      training: false
+      calibration: "on_derived_features_only"
+    retention:
+      raw_transcripts: "30d_refresh"
+      metadata: "7d_delete_cycle"
+      derived_analytics: "unlimited"
+    notes: "YouTube Data API ToS; quota-limited; curated channels only"
+
+  telegram_public:
+    id: "telegram_public"
+    name: "Telegram Public Channel Mining"
+    policy_mode: "blocked"
+    phase: "blocked"
+    default_enabled: false
+    blocked_reason: "Broad public-channel mining violates platform terms and poses legal risk"
+    hard_guard: true
+    model_usage:
+      inference: false
+      training: false
+      calibration: false
+    notes: "HARD BLOCK — no broad Telegram public-channel mining connectors allowed"
+
+  discord_mining:
+    id: "discord_mining"
+    name: "Discord Scraping/Mining"
+    policy_mode: "blocked"
+    phase: "blocked"
+    default_enabled: false
+    blocked_reason: "Broad Discord scraping/mining is non-compliant with Developer Policy"
+    hard_guard: true
+    model_usage:
+      inference: false
+      training: false
+      calibration: false
+    notes: "HARD BLOCK — only opt-in bot strategy is viable (separate source)"
+
+  tiktok_research:
+    id: "tiktok_research"
+    name: "TikTok Research Tools"
+    policy_mode: "blocked"
+    phase: "blocked"
+    default_enabled: false
+    blocked_reason: "TikTok Research API is non-commercial/research-only; no compliant commercial SaaS path confirmed"
+    hard_guard: true
+    model_usage:
+      inference: false
+      training: false
+      calibration: false
+    notes: "HARD BLOCK — commercial multi-tenant SaaS usage not legally feasible"
+
+forbidden_source_guardrails:
+  - rule_id: "FSG-001"
+    name: "telegram_public_mining"
+    source_id: "telegram_public"
+    action: "hard_block"
+    ci_test_required: true
+  - rule_id: "FSG-002"
+    name: "discord_mining"
+    source_id: "discord_mining"
+    action: "hard_block"
+    ci_test_required: true
+  - rule_id: "FSG-003"
+    name: "tiktok_research_commercial"
+    source_id: "tiktok_research"
+    action: "hard_block"
+    ci_test_required: true
+
+model_usage_rules:
+  inference_allowed:
+    description: "Running models on source data for scoring/alerting within rights"
+    applies_to: ["allow", "conditional"]
+  training_restricted:
+    description: "Training only on explicitly rights-cleared datasets"
+    applies_to: ["allow"]
+    requires: "source_rights_gate_pass"
+  training_blocked:
+    description: "No foundation/frontier model training on this source"
+    applies_to: ["conditional", "blocked"]
+    enforcement: "pre_training_hard_gate"
+
+blocked_source_alerts:
+  targets:
+    - "security"
+    - "compliance"
+    - "admin"
+  log_fields:
+    - "attempted_action"
+    - "actor"
+    - "reason_blocked"
+    - "timestamp"
