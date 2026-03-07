@@ -1,0 +1,159 @@
+# Data Lifecycle Contract — Sentinel Crypto Intelligence Platform
+# Machine-readable retention, deletion, and refresh obligations per source.
+# Version: 1.0.0 | Last updated: 2026-02-21
+
+version: "1.0.0"
+contract_type: data_lifecycle
+
+principles:
+  - "Data minimization by default"
+  - "Store IDs + minimal metadata unless terms explicitly permit text retention"
+  - "Deletion obligations must be executable as code paths, not policy text only"
+  - "Every deletion must produce a proof record"
+  - "Retention windows default to shortest legal window per source"
+
+retention_classes:
+  unlimited:
+    description: "No expiry constraint; applies to public on-chain and licensed data"
+    auto_delete: false
+  time_bound:
+    description: "Must be deleted after specified window"
+    auto_delete: true
+    requires_proof: true
+  on_request:
+    description: "Must be deleted upon user or source request"
+    auto_delete: false
+    requires_manual_trigger: true
+    requires_proof: true
+  refresh_cycle:
+    description: "Must be refreshed from source at specified interval; stale data deleted"
+    auto_delete: true
+    requires_refresh: true
+    requires_proof: true
+
+source_retention_matrix:
+  onchain_evm:
+    raw_data:
+      class: "unlimited"
+    derived_data:
+      class: "unlimited"
+    deletion_obligation: "none"
+
+  onchain_solana:
+    raw_data:
+      class: "unlimited"
+    derived_data:
+      class: "unlimited"
+    deletion_obligation: "none"
+
+  exchange_market_data:
+    raw_data:
+      class: "time_bound"
+      default_window_days: 90
+      notes: "Per exchange license; check redistribution terms"
+    derived_data:
+      class: "unlimited"
+    deletion_obligation: "per_license"
+
+  licensed_news_rss:
+    raw_data:
+      class: "time_bound"
+      default_window_days: 365
+      notes: "Per license agreement"
+    derived_data:
+      class: "unlimited"
+    deletion_obligation: "per_license"
+
+  first_party:
+    raw_data:
+      class: "on_request"
+      notes: "User-controlled; DSAR-compliant deletion required"
+    derived_data:
+      class: "on_request"
+    deletion_obligation: "on_user_request"
+
+  x_twitter:
+    raw_content:
+      class: "time_bound"
+      window_hours: 24
+      sync_pattern: "x_24h_sync_delete"
+    ids_metadata:
+      class: "time_bound"
+      default_window_days: 30
+      notes: "Per commercial agreement"
+    derived_aggregates:
+      class: "unlimited"
+    deletion_obligation: "24h_content_sync + agreement_terms"
+
+  reddit:
+    raw_content:
+      class: "on_request"
+      sync_pattern: "reddit_delete_on_request"
+      sync_frequency: "daily"
+    derived_data:
+      class: "unlimited"
+    deletion_obligation: "delete_on_request_daily_sync"
+
+  youtube:
+    raw_transcripts:
+      class: "refresh_cycle"
+      refresh_interval_days: 30
+      sync_pattern: "youtube_30d_refresh"
+    metadata:
+      class: "time_bound"
+      window_days: 7
+      sync_pattern: "youtube_7d_delete"
+    derived_analytics:
+      class: "unlimited"
+    deletion_obligation: "30d_refresh + 7d_metadata_delete"
+
+  telegram_public:
+    status: "blocked_source"
+    retention: "not_applicable"
+    notes: "No data ingestion permitted"
+
+  discord_mining:
+    status: "blocked_source"
+    retention: "not_applicable"
+    notes: "No data ingestion permitted"
+
+  tiktok_research:
+    status: "blocked_source"
+    retention: "not_applicable"
+    notes: "No data ingestion permitted"
+
+deletion_proof_schema:
+  fields:
+    - who: "actor_id or system_job_id"
+    - what: "dataset_id, record_ids, scope"
+    - when: "iso8601_timestamp"
+    - rule_id: "retention_rule or dsar_request_id"
+    - method: "hard_delete | crypto_shred | tombstone"
+    - verification: "count_before, count_after, hash_proof"
+
+automated_jobs:
+  retention_delete_sync:
+    schedule: "daily"
+    sources: ["x_twitter", "youtube", "reddit", "exchange_market_data"]
+    action: "enforce_retention_windows"
+    produces: "deletion_proof"
+
+  dsar_processor:
+    trigger: "on_request"
+    sources: ["first_party", "reddit"]
+    action: "verify_export_delete"
+    produces: "dsar_proof"
+    slo:
+      response_time_days: 30
+
+  refresh_sync:
+    schedule: "daily"
+    sources: ["youtube"]
+    action: "refresh_from_source_or_delete_stale"
+    produces: "refresh_proof"
+
+backtesting_compliance:
+  - "Backtests must run on timestamped immutable snapshots"
+  - "Sources with retention constraints use compliant snapshots or derived records only"
+  - "No raw restricted-source content in backtest datasets after retention window"
+  - "All backtests include slippage, latency, and confidence interval assumptions"
