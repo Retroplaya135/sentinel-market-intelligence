@@ -1,0 +1,96 @@
+# Product Contract — Sentinel Crypto Intelligence Platform
+# This is the machine-readable product definition. All code must conform to this contract.
+# Version: 1.0.0 | Last updated: 2026-02-21
+
+version: "1.0.0"
+contract_type: product
+
+product:
+  name: "Sentinel"
+  classification: "decision_support_intelligence_platform"
+  positioning: "decision_support_only"
+  prohibited_positioning:
+    - "guaranteed_trade_execution"
+    - "guaranteed_profit"
+    - "auto_trade_advice"
+    - "financial_advice"
+
+claim_mode:
+  type: "evidence_linked"
+  requirements:
+    every_signal_has_claim_id: true
+    every_signal_has_evidence_ref: true
+    every_signal_has_confidence: true
+    every_signal_has_invalidation_rule: true
+  claim_schema:
+    claim_id:
+      type: "string"
+      format: "uuid"
+      required: true
+    evidence_ref:
+      type: "array"
+      items:
+        type: "string"
+        format: "uri_or_id"
+      min_items: 1
+      required: true
+    confidence:
+      type: "number"
+      min: 0.0
+      max: 1.0
+      required: true
+    invalidation_rule:
+      type: "string"
+      min_length: 1
+      required: true
+    source_provenance:
+      type: "array"
+      items:
+        type: "string"
+      min_items: 1
+      required: true
+
+product_outputs:
+  now_score:
+    description: "Directional sentiment + confidence + volatility regime"
+    evidence_required: true
+  why_now:
+    description: "Fused explanation from on-chain + market microstructure + licensed content"
+    evidence_required: true
+  alert:
+    description: "Threshold event with expected half-life and invalidation trigger"
+    evidence_required: true
+  replay:
+    description: "What was known at that timestamp — evidence and outcome"
+    evidence_required: true
+  reliability:
+    description: "Rolling precision/recall and calibration by asset regime"
+    evidence_required: true
+
+evidence_standard:
+  verified: "Official or primary source only"
+  provisional: "Third-party claim, not yet cross-verified"
+  unverified: "No primary source confirmation"
+
+adr_template:
+  fields:
+    - adr_id
+    - decision
+    - kb_ref
+    - risk
+    - reversal_plan
+  placeholder_prefix: "<ADR_"
+  placeholder_suffix: ">"
+
+language_rollout:
+  phase_mvp: "en"
+  phase_2: "en_zh"
+  phase_2_gate: "precision_recall_calibration_human_qa"
+  other_languages: "experimental_with_confidence_downgrade"
+
+messaging_rules:
+  - "No guaranteed-return language"
+  - "Use probabilistic and evidence-based language"
+  - "Decision-support framing only"
+  - "Avoid buy/sell imperatives"
+  - "Alert language must be analytical/probabilistic"
