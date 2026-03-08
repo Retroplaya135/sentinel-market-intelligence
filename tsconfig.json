@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "paths": {
+      "@sentinel/shared-contracts": ["./packages/shared-contracts/src/index.ts"],
+      "@sentinel/shared-contracts/*": ["./packages/shared-contracts/src/*"],
+      "@sentinel/module-system": ["./packages/module-system/src/index.ts"],
+      "@sentinel/module-system/*": ["./packages/module-system/src/*"],
+      "@sentinel/placeholder-engine": ["./packages/placeholder-engine/src/index.ts"],
+      "@sentinel/policy-engine": ["./packages/policy-engine/src/index.ts"],
+      "@sentinel/connectors": ["./packages/connectors/src/index.ts"],
+      "@sentinel/app-layer": ["./packages/app-layer/src/index.ts"],
+      "@sentinel/scoring-engine": ["./packages/scoring-engine/src/index.ts"],
+      "@sentinel/data-layer": ["./packages/data-layer/src/index.ts"],
+      "@sentinel/etl": ["./packages/etl/src/index.ts"],
+      "@sentinel/alerting": ["./packages/alerting/src/index.ts"],
+      "@sentinel/replay": ["./packages/replay/src/index.ts"],
+      "@sentinel/integration": ["./packages/integration/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

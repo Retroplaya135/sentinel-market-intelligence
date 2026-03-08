@@ -1,0 +1,39 @@
+{
+  "name": "sentinel-market-intelligence",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "lint": "eslint packages/*/src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:contracts": "vitest run tests/phase-1 packages/shared-contracts/src",
+    "test:compliance": "vitest run tests/phase-1/compliance-policy.test.ts tests/phase-3",
+    "test:core": "vitest run tests/phase-2 tests/phase-4 tests/phase-5",
+    "test:all": "vitest run",
+    "validate:contracts": "node --loader ts-node/esm packages/shared-contracts/src/validate-all.ts",
+    "gate:quality": "npm run lint && npm run typecheck && npm run test",
+    "gate:policy": "npm run test:compliance",
+    "gate:full": "npm run gate:quality && npm run gate:policy"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "~5.7.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^5.0.5",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.0"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
