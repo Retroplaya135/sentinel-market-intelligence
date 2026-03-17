@@ -1,0 +1,12 @@
+export { BaseConnector } from './base/base-connector.js';
+export type { BaseConnectorConfig } from './base/base-connector.js';
+export { DedupeIndex, computeCanonicalHash, tagProvenance } from './base/dedupe.js';
+export type { ProvenanceTag } from './base/dedupe.js';
+export { InMemoryHealthTelemetry, ConnectorHealthSchema, QuotaStatusSchema } from './base/health.js';
+export type { ConnectorHealth, QuotaStatus, HealthTelemetry } from './base/health.js';
+export { CircuitBreaker } from './base/circuit-breaker.js';
+export type { CircuitState, CircuitBreakerOptions } from './base/circuit-breaker.js';
+export { EvmOnchainConnector } from './adapters/evm-onchain.js';
+export { ExchangeMarketConnector } from './adapters/exchange-market.js';
+export { LicensedNewsConnector } from './adapters/licensed-news.js';
+export { FirstPartyConnector } from './adapters/first-party.js';
