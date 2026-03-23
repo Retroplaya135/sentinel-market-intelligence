@@ -1,0 +1,12 @@
+export { checkAllBlockedSourceGuards, guardTelegramPublicMining, guardDiscordMining, guardTiktokResearch, isBlockedSource, BLOCKED_SOURCE_IDS } from './blocked-sources/guards.js';
+export type { SourceGuardResult, BlockedSourceCheckResult, AllowedSourceCheckResult, BlockedSourceId } from './blocked-sources/guards.js';
+export { ExceptionRegistry, ConsentScopedOverrideSchema } from './blocked-sources/exceptions.js';
+export type { ConsentScopedOverride } from './blocked-sources/exceptions.js';
+export { ConditionalSourceGateService, CONDITIONAL_SOURCE_IDS } from './conditional-gates/gates.js';
+export type { ConditionalGateResult, ConditionalSourceState, QueryBudgetCheck, QueryBudgetResult, ConditionalSourceId } from './conditional-gates/gates.js';
+export { evaluateTrainingGate, TrainingJobRequestSchema } from './training-gate/gate.js';
+export type { TrainingJobRequest, TrainingGateDecision } from './training-gate/gate.js';
+export { checkRetentionWindow, generateDeletionProof, DeletionProofSchema } from './retention/enforcement.js';
+export type { RetentionWindowCheck, RetentionCheckResult, DeletionProof } from './retention/enforcement.js';
+export { PolicyService } from './service/policy-service.js';
+export type { PolicyCheckRequest, PolicyCheckResult, AuditTrailEntry } from './service/policy-service.js';
