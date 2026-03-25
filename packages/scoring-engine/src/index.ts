@@ -1,0 +1,11 @@
+export { BaseScorer, PerSourceScoreSchema } from './base/base-scorer.js';
+export type { SourceSignal, ScoringContext, PerSourceScore } from './base/base-scorer.js';
+export { SentimentCascadeScorer } from './cascade/sentiment-scorer.js';
+export { FusionEngine, FusionWeightConfigSchema, FusionResultSchema } from './fusion/fusion-engine.js';
+export type { FusionWeightConfig, FusionResult } from './fusion/fusion-engine.js';
+export { ManipulationDetector, ManipulationMarkersSchema, DEFAULT_THRESHOLDS } from './anti-manipulation/detector.js';
+export type { ManipulationMarkers, ManipulationSignals } from './anti-manipulation/detector.js';
+export { ExplanationGenerator, DetailedExplanationSchema } from './explain/explanation-generator.js';
+export type { DetailedExplanation } from './explain/explanation-generator.js';
+export { CalibrationPipeline, CalibrationEntrySchema, CalibrationReportSchema } from './calibration/pipeline.js';
+export type { CalibrationEntry, CalibrationReport } from './calibration/pipeline.js';
